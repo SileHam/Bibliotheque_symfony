@@ -1,0 +1,52 @@
+/* Design entièrement basé sur Bootstrap 5 */
+/* Couleur personnalisée pour bibliothèque - Marron/Brun chaleureux */
+
+:root {
+    --bs-primary: #8B4513; /* Saddle Brown - couleur classique des livres anciens */
+    --bs-primary-rgb: 139, 69, 19;
+    --bs-primary-bg-subtle: #f5e6d3;
+    --bs-primary-border-subtle: #d4a574;
+    --bs-primary-text-emphasis: #5a2d0c;
+}
+
+/* Surcharge des classes Bootstrap primary */
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #6B4423;
+    border-color: #6B4423;
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.badge.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.navbar-dark.bg-primary {
+    background-color: var(--bs-primary) !important;
+}

@@ -1,0 +1,83 @@
+{% extends 'navbar.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            {% if app.user %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Vous êtes connecté en tant que <strong>{{ app.user.email }}</strong>, 
+                    <a href="{{ path('app_logout') }}" class="alert-link">Déconnexion</a>
+                </div>
+            {% endif %}
+
+            {% if not app.user %}
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h3 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Connexion</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if error %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                {{ error.messageKey|trans(error.messageData, 'security') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="inputEmail" class="form-label">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </label>
+                                <input type="email" 
+                                       value="{{ last_username }}" 
+                                       name="email" 
+                                       id="inputEmail" 
+                                       class="form-control form-control-lg" 
+                                       autocomplete="email" 
+                                       required 
+                                       autofocus 
+                                       placeholder="Entrez votre email">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="inputPassword" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Mot de passe
+                                </label>
+                                <input type="password" 
+                                       name="password" 
+                                       id="inputPassword" 
+                                       class="form-control form-control-lg" 
+                                       autocomplete="current-password" 
+                                       required 
+                                       placeholder="Entrez votre mot de passe">
+                            </div>
+
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-lg" type="submit">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <div class="text-center">
+                            <p class="text-muted mb-0">Vous n'avez pas de compte ?</p>
+                            <a href="{{ path('app_register') }}" class="btn btn-outline-primary mt-2">
+                                <i class="fas fa-user-plus me-2"></i>Créer un compte
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

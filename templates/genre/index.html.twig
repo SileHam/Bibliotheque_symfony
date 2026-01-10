@@ -1,0 +1,78 @@
+{% extends 'navbar.html.twig' %}
+
+{% block title %}Liste des Genres{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold"><i class="fas fa-tags text-primary me-2"></i>Genres</h1>
+        {% if app.user and app.user.roles[0] == "ROLE_ADMIN" %}
+            <a href="{{ path('genre_new') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Ajouter un genre
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Flash Messages -->
+    {% for message in app.flashes('Success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('Warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Table -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for genre in genres %}
+                                    <tr>
+                                        <td><span class="badge bg-secondary">#{{ genre.id }}</span></td>
+                                        <td>
+                                            <strong>{{ genre.nom }}</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ path('genre_show', {'id': genre.id}) }}" class="btn btn-sm btn-outline-primary" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if app.user and app.user.roles[0] == "ROLE_ADMIN" %}
+                                                <a href="{{ path('genre_edit', {'id': genre.id}) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">
+                                            <i class="fas fa-tags fa-3x mb-3 d-block"></i>
+                                            Aucun genre trouvé
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

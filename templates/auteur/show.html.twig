@@ -1,0 +1,68 @@
+{% extends 'navbar.html.twig' %}
+
+{% block title %}{{ auteur.nomPrenom }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="mb-4">
+        <a href="{{ path('auteur_index') }}" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        </a>
+    </div>
+
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-feather-alt me-2"></i>{{ auteur.nomPrenom }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted w-50"><i class="fas fa-user me-2"></i>Nom & Prénom</th>
+                                <td><strong>{{ auteur.nomPrenom }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted"><i class="fas fa-venus-mars me-2"></i>Sexe</th>
+                                <td>
+                                    {% if auteur.sexe == 'M' %}
+                                        <span class="badge bg-primary"><i class="fas fa-mars"></i> Masculin</span>
+                                    {% elseif auteur.sexe == 'F' %}
+                                        <span class="badge bg-danger"><i class="fas fa-venus"></i> Féminin</span>
+                                    {% else %}
+                                        <span class="text-muted">Non spécifié</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted w-50"><i class="fas fa-calendar me-2"></i>Date de naissance</th>
+                                <td><strong>{{ auteur.dateDeNaissance ? auteur.dateDeNaissance|date('d/m/Y') : 'Non spécifiée' }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted"><i class="fas fa-flag me-2"></i>Nationalité</th>
+                                <td><span class="badge bg-info fs-6">{{ auteur.nationalite }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if app.user and app.user.roles[0] == "ROLE_ADMIN" %}
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{{ path('auteur_edit', {'id': auteur.id}) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            {{ include('auteur/_delete_form.html.twig') }}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

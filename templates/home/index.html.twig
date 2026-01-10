@@ -1,0 +1,89 @@
+{% extends 'navbar.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5 py-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h1 class="display-4 fw-bold text-primary mb-3">Bienvenue à votre BIBLIOTHEQUE</h1>
+            <p class="lead text-muted mb-3">
+                <em>Vous cherchez des livres originaux en anglais ?</em>
+            </p>
+            <p class="text-muted">
+                Bibliotheque en ligne spécialisée dans les livres originaux en anglais. 
+                Plusieurs options de paiement. Inscrivez-vous pour bénéficier d'offres spéciales. 
+                Parcourez nos catégories.
+            </p>
+            <a href="{{path('livre_index')}}" class="btn btn-primary btn-lg mt-3">
+                <i class="fas fa-book me-2"></i>Découvrir nos livres
+            </a>
+        </div>
+        <div class="col-lg-6 text-center">
+            <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTRwZnR6bWNjOXRsZm5zbXFrbXNhdnZuMjlmdDdhdjVnbDA5cWNxeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/txUg3j67yVnOvkP47v/giphy.gif" alt="Bibliothèque" class="img-fluid" style="max-width: 400px;" onerror="this.src='{{asset('assets/img/bibliotheque.svg')}}'; this.onerror=null;">
+        </div>
+    </div>
+
+    <!-- Livres Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h2 class="mb-4"><i class="fas fa-book text-primary me-2"></i>Nos Livres</h2>
+            <div class="list-group">
+                {% for livre in livres %}
+                    <a href="{{ path('livre_show', {'id': livre.id}) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1"><i class="fas fa-book-open text-primary me-2"></i>{{ livre.titre }}</h5>
+                                <p class="mb-1 text-muted">
+                                    {% for auteur in livre.auteurs %}{{ auteur }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                </p>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ livre.dateDeParution ? livre.dateDeParution|date('Y') : 'N/A' }}
+                            </small>
+                        </div>
+                    </a>
+                {% else %}
+                    <div class="alert alert-info">Aucun livre disponible pour le moment.</div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if totalLivre > 5 %}
+                <nav aria-label="Pagination des livres" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% for i in 1..((totalLivre/5) | round(1, 'ceil')) %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ path("home",{pageLivre : i}) }}">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar Auteurs -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-feather-alt me-2"></i>Auteurs</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for auteur in auteurs %}
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class="fas fa-user-edit text-primary me-2"></i>
+                                <span>{{ auteur.nomPrenom }}</span>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item text-muted">Aucun auteur disponible</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
