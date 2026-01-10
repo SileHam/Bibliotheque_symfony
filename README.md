@@ -43,7 +43,7 @@ Cette application permet de gérer une collection de livres avec leurs auteurs e
 
 1. **Cloner le projet**
    ```bash
-   git clone https://github.com/VOTRE-USERNAME/VOTRE-REPO.git
+   git clone https://github.com/SileHam/Bibliotheque_symfony.git
    cd bookstore
    ```
 
@@ -127,4 +127,4 @@ Proprietary
 
 ## Auteur
 
-Votre nom
+Hamza
