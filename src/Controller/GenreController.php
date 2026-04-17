@@ -6,6 +6,7 @@ use App\Entity\Genre;
 use App\Form\GenreType;
 use App\Repository\GenreRepository;
 use App\Repository\LivreRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class GenreController extends AbstractController
     }
 
     #[Route('/new', name: 'genre_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $genre = new Genre();
         $form = $this->createForm(GenreType::class, $genre);
@@ -33,6 +34,7 @@ class GenreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($genre);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'genre_create', sprintf('Ajout du genre "%s"', $genre->getNom()));
             $this->addFlash(
                 'Success',
                 'Your gender was added successfully !'
@@ -55,13 +57,14 @@ class GenreController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'genre_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Genre $genre, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Genre $genre, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $form = $this->createForm(GenreType::class, $genre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'genre_update', sprintf('Modification du genre "%s"', $genre->getNom()));
             $this->addFlash(
                 'Success',
                 'Your gender was updated successfully !'
@@ -76,11 +79,13 @@ class GenreController extends AbstractController
     }
 
     #[Route('/{id}', name: 'genre_delete', methods: ['POST'])]
-    public function delete(Request $request, Genre $genre, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Genre $genre, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         if ($this->isCsrfTokenValid('delete'.$genre->getId(), $request->request->get('_token'))) {
+            $genreName = $genre->getNom();
             $entityManager->remove($genre);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'genre_delete', sprintf('Suppression du genre "%s"', $genreName));
             $this->addFlash(
                 'Warning',
                 'Your gender was deleted successfully !'

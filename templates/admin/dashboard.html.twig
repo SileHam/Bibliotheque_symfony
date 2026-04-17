@@ -1,0 +1,99 @@
+{% extends 'navbar.html.twig' %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold mb-1"><i class="fas fa-gauge-high text-primary me-2"></i>Dashboard administrateur</h1>
+            <p class="text-muted mb-0">Vue centralisee de la bibliotheque et acces rapide aux modules de gestion.</p>
+        </div>
+        <a href="{{ path('profile_show') }}" class="btn btn-outline-primary mt-3 mt-lg-0">
+            <i class="fas fa-user-circle me-2"></i>Voir mon profil
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Livres</p>
+                    <h2 class="fw-bold">{{ stats.livres }}</h2>
+                    <a href="{{ path('livre_index') }}" class="stretched-link text-decoration-none">Gerer les livres</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Auteurs</p>
+                    <h2 class="fw-bold">{{ stats.auteurs }}</h2>
+                    <a href="{{ path('auteur_index') }}" class="stretched-link text-decoration-none">Gerer les auteurs</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Genres</p>
+                    <h2 class="fw-bold">{{ stats.genres }}</h2>
+                    <a href="{{ path('genre_index') }}" class="stretched-link text-decoration-none">Gerer les genres</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">Utilisateurs</p>
+                    <h2 class="fw-bold">{{ stats.users }}</h2>
+                    <a href="{{ path('user_index') }}" class="stretched-link text-decoration-none">Gerer les utilisateurs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h2>
+                </div>
+                <div class="card-body d-grid gap-2">
+                    <a href="{{ path('livre_new') }}" class="btn btn-success"><i class="fas fa-book-medical me-2"></i>Ajouter un livre</a>
+                    <a href="{{ path('auteur_new') }}" class="btn btn-outline-primary"><i class="fas fa-feather-pointed me-2"></i>Ajouter un auteur</a>
+                    <a href="{{ path('genre_new') }}" class="btn btn-outline-primary"><i class="fas fa-tags me-2"></i>Ajouter un genre</a>
+                    <a href="{{ path('user_new') }}" class="btn btn-outline-dark"><i class="fas fa-user-plus me-2"></i>Creer un utilisateur</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0"><i class="fas fa-clock-rotate-left me-2"></i>Activite recente</h2>
+                    <span class="badge bg-light text-dark">{{ stats.activities }} actions</span>
+                </div>
+                <div class="card-body">
+                    {% if recentActivities is not empty %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in recentActivities %}
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <div class="fw-semibold">{{ activity.description }}</div>
+                                            <div class="text-muted small">{{ activity.user.email }} - {{ activity.action }}</div>
+                                        </div>
+                                        <span class="badge bg-light text-dark">{{ activity.createdAt|date('d/m/Y H:i') }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">Aucune activite enregistree pour le moment.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
