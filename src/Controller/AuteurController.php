@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Auteur;
 use App\Form\AuteurType;
 use App\Repository\AuteurRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ class AuteurController extends AbstractController
     }
 
     #[Route('/new', name: 'auteur_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $auteur = new Auteur();
         $form = $this->createForm(AuteurType::class, $auteur);
@@ -32,6 +33,7 @@ class AuteurController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($auteur);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'author_create', sprintf('Ajout de l auteur "%s"', $auteur->getNomPrenom()));
             $this->addFlash(
                 'Success',
                 'Your auther was added successfully !'
@@ -54,13 +56,14 @@ class AuteurController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'auteur_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Auteur $auteur, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Auteur $auteur, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $form = $this->createForm(AuteurType::class, $auteur);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'author_update', sprintf('Modification de l auteur "%s"', $auteur->getNomPrenom()));
             $this->addFlash(
                 'Success',
                 'Your auther was updated successfully !'
@@ -75,11 +78,13 @@ class AuteurController extends AbstractController
     }
 
     #[Route('/{id}', name: 'auteur_delete', methods: ['POST'])]
-    public function delete(Request $request, Auteur $auteur, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Auteur $auteur, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         if ($this->isCsrfTokenValid('delete'.$auteur->getId(), $request->request->get('_token'))) {
+            $authorName = $auteur->getNomPrenom();
             $entityManager->remove($auteur);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'author_delete', sprintf('Suppression de l auteur "%s"', $authorName));
             $this->addFlash(
                 'Warning',
                 'Your auther was deleted successfully !'

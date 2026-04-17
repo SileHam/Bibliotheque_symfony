@@ -6,6 +6,7 @@ use App\Entity\Livre;
 use App\Form\LivreType;
 use App\Form\SearchLivreType;
 use App\Repository\LivreRepository;
+use App\Service\ActivityLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +58,7 @@ class LivreController extends AbstractController
     // }
 
     #[Route('/new', name: 'livre_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $livre = new Livre();
         $form = $this->createForm(LivreType::class, $livre);
@@ -66,6 +67,7 @@ class LivreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($livre);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'book_create', sprintf('Ajout du livre "%s"', $livre->getTitre()));
             $this->addFlash(
                 'Success',
                 'Your book was added successfully !'
@@ -88,13 +90,14 @@ class LivreController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'livre_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Livre $livre, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Livre $livre, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         $form = $this->createForm(LivreType::class, $livre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'book_update', sprintf('Modification du livre "%s"', $livre->getTitre()));
             $this->addFlash(
                 'Success',
                 'Your book was updated successfully !'
@@ -109,11 +112,13 @@ class LivreController extends AbstractController
     }
 
     #[Route('/{id}', name: 'livre_delete', methods: ['POST'])]
-    public function delete(Request $request, Livre $livre, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Livre $livre, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
     {
         if ($this->isCsrfTokenValid('delete'.$livre->getId(), $request->request->get('_token'))) {
+            $bookTitle = $livre->getTitre();
             $entityManager->remove($livre);
             $entityManager->flush();
+            $activityLogger->log($this->getUser(), 'book_delete', sprintf('Suppression du livre "%s"', $bookTitle));
             $this->addFlash(
                 'Warning',
                 'This Book had been deleted successfully !'

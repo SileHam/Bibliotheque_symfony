@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    {% if app.user and app.user.roles[0] == "ROLE_ADMIN" %}
+    {% if is_granted('ROLE_ADMIN') %}
         <div class="d-flex gap-2 justify-content-center">
             <a href="{{ path('livre_edit', {'id': livre.id}) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Modifier
