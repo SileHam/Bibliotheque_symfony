@@ -1,11 +1,14 @@
 {% extends 'navbar.html.twig' %}
 
-{% block title %}Liste des Livres{% endblock %}
+{% block title %}Catalogue{% endblock %}
 
 {% block body %}
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-5 fw-bold"><i class="fas fa-book text-primary me-2"></i>Livres</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="display-5 fw-bold mb-1"><i class="fas fa-book text-primary me-2"></i>Catalogue</h1>
+            <p class="text-muted mb-0">{{ totalLivres }} livre{{ totalLivres > 1 ? 's' : '' }} disponible{{ totalLivres > 1 ? 's' : '' }}</p>
+        </div>
         {% if is_granted('ROLE_ADMIN') %}
             <a href="{{ path('livre_new') }}" class="btn btn-success">
                 <i class="fas fa-plus-circle me-2"></i>Ajouter un livre
@@ -13,7 +16,6 @@
         {% endif %}
     </div>
 
-    <!-- Flash Messages -->
     {% for message in app.flashes('Success') %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ message }}
@@ -27,101 +29,101 @@
         </div>
     {% endfor %}
 
-    <!-- Search Form -->
-    <div class="card mb-4 shadow-sm">
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            {{ form_start(search, {'attr': {'class': 'row g-3'}}) }}
-                <div class="col-md-8">
-                    {{ form_row(search.titre, {'attr': {'class': 'form-control', 'placeholder': 'Rechercher un livre...'}}) }}
+            {{ form_start(search, {'attr': {'class': 'row g-3 align-items-center'}}) }}
+                <div class="col-md-9">
+                    {{ form_widget(search.titre, {'attr': {'class': 'form-control form-control-lg'}}) }}
                 </div>
-                <div class="col-md-4">
-                    {{ form_row(search.Rechercher, {'attr': {'class': 'btn btn-primary w-100'}}) }}
+                <div class="col-md-3">
+                    {{ form_widget(search.Rechercher, {'attr': {'class': 'btn btn-primary btn-lg w-100'}}) }}
                 </div>
             {{ form_end(search) }}
         </div>
     </div>
 
-    <!-- Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ISBN</th>
-                            <th>Titre</th>
-                            <th>Auteurs</th>
-                            <th>Genres</th>
-                            <th>Pages</th>
-                            <th>Date de parution</th>
-                            <th>Note</th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for livre in livres %}
-                            <tr>
-                                <td><small class="text-muted">{{ livre.isbn }}</small></td>
-                                <td>
-                                    <strong>{{ livre.titre }}</strong>
-                                </td>
-                                <td>
-                                    {% for auteur in livre.auteurs %}
-                                        <span class="badge bg-secondary me-1">{{ auteur }}</span>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% for genre in livre.genres %}
-                                        <span class="badge bg-info me-1">{{ genre }}</span>
-                                    {% endfor %}
-                                </td>
-                                <td><i class="fas fa-file-alt text-muted me-1"></i>{{ livre.nombrePages }}</td>
-                                <td>
-                                    <i class="fas fa-calendar text-muted me-1"></i>
-                                    {{ livre.dateDeParution ? livre.dateDeParution|date('d/m/Y') : 'N/A' }}
-                                </td>
-                                <td>
-                                    <span class="badge 
-                                        {% if livre.note > 17 %}bg-success
-                                        {% elseif livre.note > 14 %}bg-primary
-                                        {% elseif livre.note >= 10 %}bg-warning
-                                        {% else %}bg-danger
-                                        {% endif %}">
-                                        {{ livre.note }}/20
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ path('livre_show', {'id': livre.id}) }}" class="btn btn-sm btn-outline-primary" title="Voir">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% if is_granted('ROLE_ADMIN') %}
-                                        <a href="{{ path('livre_edit', {'id': livre.id}) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
+    <div class="row g-4">
+        {% for livre in livres %}
+            <div class="col-md-6 col-xl-4">
+                <div class="card book-card h-100 border-0 shadow-sm">
+                    <img
+                        src="{{ livre.imageUrl ? livre.imageUrl : asset('assets/img/book-placeholder.svg') }}"
+                        alt="{{ livre.titre }}"
+                        class="book-card-cover"
+                        onerror="this.src='{{ asset('assets/img/book-placeholder.svg') }}'; this.onerror=null;"
+                    >
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between gap-3 align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ livre.titre }}</h5>
+                            <span class="badge bg-primary">{{ livre.note }}/20</span>
+                        </div>
+
+                        <p class="text-muted small mb-2">
+                            {% for auteur in livre.auteurs %}
+                                {{ auteur }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for genre in livre.genres %}
+                                <span class="badge bg-light text-primary border">{{ genre.nom }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <p class="card-text text-muted flex-grow-1">{{ livre.description|default('Résumé indisponible.')|slice(0, 150) }}{% if livre.description and livre.description|length > 150 %}...{% endif %}</p>
+
+                        <div class="book-meta small text-muted mb-3">
+                            <span><i class="fas fa-calendar me-1"></i>{{ livre.dateDeParution ? livre.dateDeParution|date('Y') : 'N/A' }}</span>
+                            <span><i class="fas fa-file-lines me-1"></i>{{ livre.nombrePages }} pages</span>
+                            <span><i class="fas fa-box-open me-1"></i>{{ livre.stock }} en stock</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto mb-3">
+                            <div class="fw-bold text-primary fs-4">{{ livre.price|number_format(2, ',', ' ') }} €</div>
+                            <a href="{{ path('livre_show', {'id': livre.id}) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-2"></i>Détails
+                            </a>
+                        </div>
+
+                        {% if app.user %}
+                            <form method="post" action="{{ path('cart_add', {'id': livre.id}) }}" class="d-grid gap-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ livre.id) }}">
+                                <button type="submit" class="btn btn-primary" {% if not livre.inStock %}disabled{% endif %}>
+                                    <i class="fas fa-cart-plus me-2"></i>{{ livre.inStock ? 'Ajouter au panier' : 'Rupture de stock' }}
+                                </button>
+                            </form>
                         {% else %}
-                            <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    <i class="fas fa-book-open fa-3x mb-3 d-block"></i>
-                                    Aucun livre trouvé
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour acheter
+                            </a>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="{{ path('livre_edit', {'id': livre.id}) }}" class="btn btn-sm btn-outline-warning flex-fill">
+                                    <i class="fas fa-pen me-1"></i>Modifier
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-        </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info shadow-sm">
+                    <i class="fas fa-book-open me-2"></i>Aucun livre ne correspond à votre recherche.
+                </div>
+            </div>
+        {% endfor %}
     </div>
 
-    <!-- Pagination -->
-    {% if search.titre and totalLivres > 5 %}
-        <nav aria-label="Pagination des livres" class="mt-4">
+    {% set totalPages = (totalLivres / perPage)|round(0, 'ceil') %}
+    {% if totalPages > 1 %}
+        <nav aria-label="Pagination du catalogue" class="mt-5">
             <ul class="pagination justify-content-center">
-                {% for i in 1..((totalLivres/5)|round(0,'ceil')) %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ path("livre_index", {page : i}) }}">{{ i }}</a>
+                {% for i in 1..totalPages %}
+                    <li class="page-item {{ i == page ? 'active' : '' }}">
+                        <a class="page-link" href="{{ path('livre_index', {'page': i, 'search_livre_type[titre]': searchTerm}) }}">{{ i }}</a>
                     </li>
                 {% endfor %}
             </ul>

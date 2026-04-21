@@ -4,69 +4,97 @@
 
 {% block body %}
 <div class="container">
+    {% for message in app.flashes('Success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
     <div class="mb-4">
-        <a href="{{ path('livre_index') }}" class="btn btn-outline-secondary mb-3">
-            <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+        <a href="{{ path('livre_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour au catalogue
         </a>
     </div>
 
-    <div class="card shadow-lg mb-4">
-        <div class="card-header bg-primary text-white">
-            <h2 class="mb-0"><i class="fas fa-book me-2"></i>{{ livre.titre }}</h2>
-        </div>
-        <div class="card-body">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <table class="table table-borderless">
-                        <tbody>
-                            <tr>
-                                <th class="text-muted w-50"><i class="fas fa-barcode me-2"></i>ISBN</th>
-                                <td><strong>{{ livre.isbn }}</strong></td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted"><i class="fas fa-file-alt me-2"></i>Nombre de pages</th>
-                                <td><strong>{{ livre.nombrePages }} pages</strong></td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted"><i class="fas fa-calendar me-2"></i>Date de parution</th>
-                                <td><strong>{{ livre.dateDeParution ? livre.dateDeParution|date('d/m/Y') : 'Non spécifiée' }}</strong></td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted"><i class="fas fa-star me-2"></i>Note</th>
-                                <td>
-                                    <span class="badge fs-6 
-                                        {% if livre.note > 17 %}bg-success
-                                        {% elseif livre.note > 14 %}bg-primary
-                                        {% elseif livre.note >= 10 %}bg-warning
-                                        {% else %}bg-danger
-                                        {% endif %}">
-                                        {{ livre.note }}/20
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <h5 class="text-muted mb-3"><i class="fas fa-feather-alt me-2"></i>Auteurs</h5>
+    <div class="card border-0 shadow-lg overflow-hidden">
+        <div class="row g-0">
+            <div class="col-lg-4">
+                <img
+                    src="{{ livre.imageUrl ? livre.imageUrl : asset('assets/img/book-placeholder.svg') }}"
+                    alt="{{ livre.titre }}"
+                    class="book-detail-cover w-100 h-100"
+                    onerror="this.src='{{ asset('assets/img/book-placeholder.svg') }}'; this.onerror=null;"
+                >
+            </div>
+            <div class="col-lg-8">
+                <div class="card-body p-4 p-xl-5">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                         <div>
-                            {% for auteur in livre.auteurs %}
-                                <span class="badge bg-secondary fs-6 me-2 mb-2 p-2">
-                                    <i class="fas fa-user-edit me-1"></i>{{ auteur }}
-                                </span>
-                            {% endfor %}
+                            <h1 class="h2 mb-2">{{ livre.titre }}</h1>
+                            <p class="text-muted mb-0">
+                                {% for auteur in livre.auteurs %}
+                                    {{ auteur }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <span class="badge bg-primary fs-6">{{ livre.note }}/20</span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        {% for genre in livre.genres %}
+                            <span class="badge bg-light text-primary border px-3 py-2">{{ genre.nom }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <p class="lead text-muted mb-4">{{ livre.description|default('Aucune description disponible pour ce livre.') }}</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="book-fact">
+                                <span class="book-fact-label">ISBN</span>
+                                <strong>{{ livre.isbn }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="book-fact">
+                                <span class="book-fact-label">Parution</span>
+                                <strong>{{ livre.dateDeParution ? livre.dateDeParution|date('d/m/Y') : 'N/A' }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="book-fact">
+                                <span class="book-fact-label">Pages</span>
+                                <strong>{{ livre.nombrePages }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="book-fact">
+                                <span class="book-fact-label">Stock</span>
+                                <strong>{{ livre.stock }}</strong>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <h5 class="text-muted mb-3"><i class="fas fa-tags me-2"></i>Genres</h5>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 border-top pt-4">
                         <div>
-                            {% for genre in livre.genres %}
-                                <span class="badge bg-info fs-6 me-2 mb-2 p-2">
-                                    <i class="fas fa-tag me-1"></i>{{ genre }}
-                                </span>
-                            {% endfor %}
+                            <div class="text-muted small">Prix</div>
+                            <div class="display-6 text-primary fw-bold mb-0">{{ livre.price|number_format(2, ',', ' ') }} €</div>
                         </div>
+
+                        {% if app.user %}
+                            <form method="post" action="{{ path('cart_add', {'id': livre.id}) }}" class="d-flex flex-wrap align-items-center gap-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ livre.id) }}">
+                                <input type="number" name="quantity" min="1" max="{{ livre.stock }}" value="1" class="form-control" style="width: 90px;" {% if not livre.inStock %}disabled{% endif %}>
+                                <button type="submit" class="btn btn-primary btn-lg" {% if not livre.inStock %}disabled{% endif %}>
+                                    <i class="fas fa-cart-plus me-2"></i>{{ livre.inStock ? 'Ajouter au panier' : 'Rupture de stock' }}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour acheter
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -74,7 +102,7 @@
     </div>
 
     {% if is_granted('ROLE_ADMIN') %}
-        <div class="d-flex gap-2 justify-content-center">
+        <div class="d-flex gap-2 justify-content-center mt-4">
             <a href="{{ path('livre_edit', {'id': livre.id}) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>Modifier
             </a>

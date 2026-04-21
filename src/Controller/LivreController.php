@@ -17,45 +17,25 @@ use Symfony\Component\Routing\Annotation\Route;
 class LivreController extends AbstractController
 {
     #[Route('/', name: 'livre_index')]
-    public function index(LivreRepository $livreRepository,Request $req): Response
+    public function index(LivreRepository $livreRepository, Request $request): Response
     {
-        $qb = $livreRepository->getPaginatedLivres($req->query->get("page",1));
+        $page = max(1, $request->query->getInt('page', 1));
         $form = $this->createForm(SearchLivreType::class);
-        $search = $form->handleRequest($req);
-        if($form->isSubmitted() && $form->isValid()){
-            $qb = $livreRepository->createQueryBuilder('l')
-                             ->where('l.titre LIKE :titre')
-                             ->setParameter('titre','%'.$search->get('titre')->getData().'%')
-                             ->getQuery()->getResult();
-        }   
+        $form->handleRequest($request);
+
+        $searchTerm = trim((string) $form->get('titre')->getData());
+        $livres = $livreRepository->findPaginatedCatalog($page, $searchTerm);
+        $totalLivres = $livreRepository->countCatalog($searchTerm);
+
         return $this->render('livre/index.html.twig', [
-            'livres' => $qb,
+            'livres' => $livres,
             'search' => $form->createView(),
-            'totalLivres' => $livreRepository->countLivres()
+            'totalLivres' => $totalLivres,
+            'searchTerm' => $searchTerm,
+            'page' => $page,
+            'perPage' => LivreRepository::PER_PAGE,
         ]);
     }
-
-    // #[Route('/', name: 'livre_index')]
-    // public function seachByTitle(Request $request, LivreRepository $livreRepository): Response
-    // {
-    //     $livres = $livreRepository->findAll();
-
-    //     $form = $this->createForm(SearchLivreType::class);
-        
-    //     $search = $form->handleRequest($request);
-
-    //     if($form->isSubmitted() && $form->isValid()){
-
-    //         $livres = $livreRepository->search(
-    //             $search->get('titre')->getData(),
-    //         );
-    //     }
-
-    //     return $this->render('livre/index.html.twig', [
-    //         'livres' => $livres,
-    //         'search' => $form->createView()
-    //     ]);
-    // }
 
     #[Route('/new', name: 'livre_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ActivityLogger $activityLogger): Response
@@ -68,10 +48,8 @@ class LivreController extends AbstractController
             $entityManager->persist($livre);
             $entityManager->flush();
             $activityLogger->log($this->getUser(), 'book_create', sprintf('Ajout du livre "%s"', $livre->getTitre()));
-            $this->addFlash(
-                'Success',
-                'Your book was added successfully !'
-            );
+            $this->addFlash('Success', 'Le livre a été ajouté avec succès.');
+
             return $this->redirectToRoute('livre_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -98,10 +76,8 @@ class LivreController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
             $activityLogger->log($this->getUser(), 'book_update', sprintf('Modification du livre "%s"', $livre->getTitre()));
-            $this->addFlash(
-                'Success',
-                'Your book was updated successfully !'
-            );
+            $this->addFlash('Success', 'Le livre a été mis à jour avec succès.');
+
             return $this->redirectToRoute('livre_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -119,10 +95,7 @@ class LivreController extends AbstractController
             $entityManager->remove($livre);
             $entityManager->flush();
             $activityLogger->log($this->getUser(), 'book_delete', sprintf('Suppression du livre "%s"', $bookTitle));
-            $this->addFlash(
-                'Warning',
-                'This Book had been deleted successfully !'
-            );
+            $this->addFlash('Warning', 'Le livre a bien été supprimé.');
         }
 
         return $this->redirectToRoute('livre_index', [], Response::HTTP_SEE_OTHER);

@@ -2,8 +2,8 @@
 /* Couleur personnalisée pour bibliothèque - Marron/Brun chaleureux */
 
 :root {
-    --bs-primary: #8B4513; /* Saddle Brown - couleur classique des livres anciens */
-    --bs-primary-rgb: 139, 69, 19;
+    --bs-primary: #9c5513; /* Brun chaud proche de la maquette */
+    --bs-primary-rgb: 156, 85, 19;
     --bs-primary-bg-subtle: #f5e6d3;
     --bs-primary-border-subtle: #d4a574;
     --bs-primary-text-emphasis: #5a2d0c;
@@ -26,8 +26,8 @@
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-    background-color: #6B4423;
-    border-color: #6B4423;
+    background-color: #7d420e;
+    border-color: #7d420e;
 }
 
 .btn-outline-primary {
@@ -49,4 +49,133 @@
 
 .navbar-dark.bg-primary {
     background-color: var(--bs-primary) !important;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    letter-spacing: 0.02em;
+}
+
+.navbar-brand-icon {
+    filter: brightness(0) invert(1);
+    flex-shrink: 0;
+}
+
+.navbar-brand-text {
+    line-height: 1;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 237, 223, 0.82);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus,
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #ffffff;
+}
+
+.page-link {
+    color: var(--bs-primary);
+}
+
+.page-link:hover,
+.page-link:focus {
+    color: #7d420e;
+}
+
+.page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.hero-section {
+    background: linear-gradient(135deg, rgba(156, 85, 19, 0.08), rgba(245, 230, 211, 0.95));
+    border: 1px solid rgba(156, 85, 19, 0.12);
+}
+
+.hero-kicker {
+    color: var(--bs-primary);
+    letter-spacing: 0.14em;
+}
+
+.hero-books-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.hero-book-tile {
+    background-color: #fff;
+    border-radius: 1.25rem;
+    padding: 0.75rem;
+}
+
+.hero-book-tile img {
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    width: 100%;
+    box-shadow: 0 18px 40px rgba(43, 23, 8, 0.14);
+}
+
+.book-card {
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 1rem 2rem rgba(43, 23, 8, 0.12) !important;
+}
+
+.book-card-cover {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    background-color: #f4ebe3;
+}
+
+.book-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+}
+
+.book-detail-cover {
+    min-height: 100%;
+    object-fit: cover;
+    background-color: #f4ebe3;
+}
+
+.book-fact {
+    background-color: rgba(156, 85, 19, 0.06);
+    border: 1px solid rgba(156, 85, 19, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+    height: 100%;
+}
+
+.book-fact-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.35rem;
+}
+
+.cart-cover {
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    width: 100%;
+    background-color: #f4ebe3;
+}
+
+.cart-summary-card {
+    position: sticky;
+    top: 1.5rem;
+}
+
+@media (max-width: 991.98px) {
+    .cart-summary-card {
+        position: static;
+    }
 }
