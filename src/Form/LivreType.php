@@ -6,7 +6,11 @@ use App\Entity\Livre;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,31 +19,62 @@ class LivreType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('isbn' , TextType::class,[
-                'attr'=>[
-                    'class'=> 'uk-input',
-                    'placeholder' => 'Entrez l\' ISBN'
-                ]
+            ->add('isbn', TextType::class, [
+                'label' => 'ISBN',
+                'attr' => [
+                    'placeholder' => 'Ex: 9780439708180',
+                ],
             ])
-            ->add('titre' , TextType::class,[
-                'attr'=>[
-                    'class'=> 'uk-input',
-                    'placeholder' => 'Entrez le titre du bouquint'
-                ]
+            ->add('titre', TextType::class, [
+                'label' => 'Titre',
+                'attr' => [
+                    'placeholder' => 'Titre du livre',
+                ],
             ])
-            ->add('nombre_pages' , null,[
-                'attr'=>[
-                    'class'=> 'uk-input',
-                    'placeholder' => 'Entrez le nombre de page'
-                ]
+            ->add('description', TextareaType::class, [
+                'label' => 'Description',
+                'required' => false,
+                'attr' => [
+                    'rows' => 5,
+                    'placeholder' => 'Résumé éditorial, ambiance, points forts...',
+                ],
             ])
-            ->add('date_de_parution',DateType::class,[
+            ->add('imageUrl', UrlType::class, [
+                'label' => 'Image de couverture (URL)',
+                'required' => false,
+                'attr' => [
+                    'placeholder' => 'https://...',
+                ],
+            ])
+            ->add('nombre_pages', IntegerType::class, [
+                'label' => 'Nombre de pages',
+                'attr' => [
+                    'placeholder' => 'Nombre total de pages',
+                    'min' => 1,
+                ],
+            ])
+            ->add('price', MoneyType::class, [
+                'label' => 'Prix',
+                'currency' => 'EUR',
+                'attr' => [
+                    'placeholder' => '14.90',
+                    'min' => 0,
+                    'step' => '0.01',
+                ],
+            ])
+            ->add('stock', IntegerType::class, [
+                'label' => 'Stock',
+                'attr' => [
+                    'placeholder' => 'Quantité disponible',
+                    'min' => 0,
+                ],
+            ])
+            ->add('date_de_parution', DateType::class, [
+                'label' => 'Date de parution',
                 'widget' => 'single_text',
-                'attr'=>[
-                    'class'=> 'uk-input',
-                ]
             ])
-            ->add('note',ChoiceType::class,[
+            ->add('note', ChoiceType::class, [
+                'label' => 'Note',
                 'choices' => [
                     '1/20' => 1,
                     '2/20' => 2,
@@ -63,17 +98,18 @@ class LivreType extends AbstractType
                     '20/20' => 20,
                 ],
             ])
-            ->add('auteurs', null,[
+            ->add('auteurs', null, [
+                'label' => 'Auteurs',
                 'attr' => [
-                    'multiple' => true
-                ]
+                    'multiple' => true,
+                ],
             ])
-            ->add('genres', null,[
+            ->add('genres', null, [
+                'label' => 'Genres',
                 'attr' => [
-                    'multiple' => true
-                ]
-            ])
-        ;
+                    'multiple' => true,
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -13,28 +13,40 @@ class Livre
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 13, unique:true)]
-    private $isbn;
+    #[ORM\Column(type: 'string', length: 13, unique: true)]
+    private ?string $isbn = null;
 
     #[ORM\Column(type: 'text')]
-    private $titre;
+    private ?string $titre = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageUrl = null;
 
     #[ORM\Column(type: 'integer')]
-    private $nombre_pages;
+    private ?int $nombre_pages = null;
 
     #[ORM\Column(type: 'date')]
-    private $date_de_parution;
+    private ?\DateTimeInterface $date_de_parution = null;
 
     #[ORM\Column(type: 'integer')]
-    private $note;
+    private ?int $note = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $price = '0.00';
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $stock = 0;
 
     #[ORM\ManyToMany(targetEntity: Auteur::class, inversedBy: 'livres')]
-    private $auteurs;
+    private Collection $auteurs;
 
     #[ORM\ManyToMany(targetEntity: Genre::class)]
-    private $genres;
+    private Collection $genres;
 
     public function __construct()
     {
@@ -47,12 +59,12 @@ class Livre
         return $this->id;
     }
 
-    public function getIsbn(): ?int
+    public function getIsbn(): ?string
     {
         return $this->isbn;
     }
 
-    public function setIsbn(int $isbn): self
+    public function setIsbn(string $isbn): self
     {
         $this->isbn = $isbn;
 
@@ -67,6 +79,30 @@ class Livre
     public function setTitre(string $titre): self
     {
         $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): self
+    {
+        $this->imageUrl = $imageUrl;
 
         return $this;
     }
@@ -107,8 +143,42 @@ class Livre
         return $this;
     }
 
+    public function getPrice(): string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(string|float|int $price): self
+    {
+        $this->price = number_format((float) $price, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getPriceAsFloat(): float
+    {
+        return (float) $this->price;
+    }
+
+    public function getStock(): int
+    {
+        return $this->stock;
+    }
+
+    public function setStock(int $stock): self
+    {
+        $this->stock = max(0, $stock);
+
+        return $this;
+    }
+
+    public function isInStock(): bool
+    {
+        return $this->stock > 0;
+    }
+
     /**
-     * @return Collection|Auteur[]
+     * @return Collection<int, Auteur>
      */
     public function getAuteurs(): Collection
     {
@@ -132,7 +202,7 @@ class Livre
     }
 
     /**
-     * @return Collection|Genre[]
+     * @return Collection<int, Genre>
      */
     public function getGenres(): Collection
     {

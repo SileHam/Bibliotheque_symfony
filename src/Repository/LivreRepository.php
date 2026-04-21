@@ -4,79 +4,70 @@ namespace App\Repository;
 
 use App\Entity\Livre;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method Livre|null find($id, $lockMode = null, $lockVersion = null)
- * @method Livre|null findOneBy(array $criteria, array $orderBy = null)
- * @method Livre[]    findAll()
- * @method Livre[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class LivreRepository extends ServiceEntityRepository
 {
+    public const PER_PAGE = 6;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Livre::class);
     }
-    
-    public function getPaginatedLivres($page){
-        $qb = $this->createQueryBuilder("l")
-            ->orderBy("l.titre")
-            ->setFirstResult(($page-1)*5)
-            ->setMaxResults(5)
-        ;
-        return $qb->getQuery()->getResult();
-    }
 
-    public function countLivres()
+    /**
+     * @return Livre[]
+     */
+    public function findPaginatedCatalog(int $page, ?string $searchTerm = null): array
     {
-        return $this->createQueryBuilder('l')
-                    ->select("COUNT(l.id)")
-                    ->getQuery()
-                    ->getSingleScalarResult();
-    }
-
-
-
-    public function search($titre = null):array
-    {
-        return $this->createQueryBuilder('l')
-                             ->where('l.titre LIKE :titre')
-                             ->setParameter('titre','%'.$titre.'%')
-                             ->getQuery()->getResult();
-    }
-
-
-
-
-
-
-    // /**
-    //  * @return Livre[] Returns an array of Livre objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('l.id', 'ASC')
-            ->setMaxResults(10)
+        return $this->createCatalogQueryBuilder($searchTerm)
+            ->setFirstResult((max(1, $page) - 1) * self::PER_PAGE)
+            ->setMaxResults(self::PER_PAGE)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Livre
+    public function countCatalog(?string $searchTerm = null): int
+    {
+        return (int) $this->createCatalogQueryBuilder($searchTerm)
+            ->select('COUNT(DISTINCT l.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return Livre[]
+     */
+    public function findFeatured(int $limit = 6): array
     {
         return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
+            ->addSelect('auteur', 'genre')
+            ->leftJoin('l.auteurs', 'auteur')
+            ->leftJoin('l.genres', 'genre')
+            ->orderBy('l.note', 'DESC')
+            ->addOrderBy('l.date_de_parution', 'DESC')
+            ->setMaxResults($limit)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getResult();
     }
-    */
+
+    private function createCatalogQueryBuilder(?string $searchTerm = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->addSelect('auteur', 'genre')
+            ->leftJoin('l.auteurs', 'auteur')
+            ->leftJoin('l.genres', 'genre')
+            ->orderBy('l.date_de_parution', 'DESC')
+            ->addOrderBy('l.titre', 'ASC');
+
+        if ($searchTerm !== null && $searchTerm !== '') {
+            $qb
+                ->andWhere('l.titre LIKE :term OR l.description LIKE :term')
+                ->setParameter('term', '%'.$searchTerm.'%');
+        }
+
+        return $qb;
+    }
 }
